@@ -283,36 +283,43 @@ namespace Human.Core
                 return null;
             }
 
+            var usePointer = false;
+            if (arg.StartsWith(StepConst.POINTSTART) && arg.EndsWith(StepConst.POINTEDN))
+            {
+                usePointer = true;
+                arg = arg.Replace(StepConst.POINTSTART, "").Replace(StepConst.POINTEDN, "").Trim();
+            }
+
             if (int.TryParse(arg, out int mindex))
             {
                 if (cmd.Equals(StepConst.COPYFROM, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new CopyFrom { MemoryIndex = mindex };
+                    return new CopyFrom { MemoryIndex = mindex, UsePointer = usePointer };
                 }
 
                 if (cmd.Equals(StepConst.COPYTO, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new CopyTo { MemoryIndex = mindex };
+                    return new CopyTo { MemoryIndex = mindex, UsePointer = usePointer };
                 }
 
                 if (cmd.Equals(StepConst.ADD, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new Add { MemoryIndex = mindex };
+                    return new Add { MemoryIndex = mindex, UsePointer = usePointer };
                 }
 
                 if (cmd.Equals(StepConst.SUB, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new Sub { MemoryIndex = mindex };
+                    return new Sub { MemoryIndex = mindex, UsePointer = usePointer };
                 }
 
                 if (cmd.Equals(StepConst.BUMPUP, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new BumpAdd { MemoryIndex = mindex };
+                    return new BumpAdd { MemoryIndex = mindex, UsePointer = usePointer };
                 }
 
                 if (cmd.Equals(StepConst.BUMPDN, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new BumpSub { MemoryIndex = mindex };
+                    return new BumpSub { MemoryIndex = mindex, UsePointer = usePointer };
                 }
             }
 
@@ -345,5 +352,8 @@ namespace Human.Core
 
         public const string DEFINE = "DEFINE";
         public const string DEFINEEND = ";";
+
+        public const string POINTSTART = "[";
+        public const string POINTEDN = "]";
     }
 }

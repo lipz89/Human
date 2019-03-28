@@ -1,4 +1,6 @@
-﻿namespace Human.Core
+﻿using System.Xml;
+
+namespace Human.Core
 {
     interface ICommand
     {
@@ -57,24 +59,68 @@
     class OpMemoryCommand : Step
     {
         public int MemoryIndex { get; set; }
+        public bool UsePointer { get; set; }
+
+        protected string IndexString
+        {
+            get
+            {
+                if (!UsePointer)
+                {
+                    return MemoryIndex.ToString();
+                }
+                return StepConst.POINTSTART + MemoryIndex + StepConst.POINTEDN;
+            }
+        }
+
+        protected bool TryVisitMemory(Task task, out int index, out Result error)
+        {
+            index = MemoryIndex;
+            error = null;
+            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            {
+                error = Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return false;
+            }
+
+            if (!UsePointer)
+            {
+                return true;
+            }
+
+            var data = task.Project.Memory.Get(MemoryIndex);
+            if (data is Data<int> dint)
+            {
+                index = dint.Value;
+                if (task.Project.Memory.HasIndex(index))
+                {
+                    return true;
+                }
+                error = Result.Error($"试图访问不存在的内存地址 {index}。");
+                return false;
+            }
+
+            error = Result.Error($"试图访问的内存地址 {index} 不正确。");
+            return false;
+        }
     }
 
     class CopyFrom : OpMemoryCommand, ICommand
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            task.CurrentData = task.Project.Memory.Get(MemoryIndex);
+            task.CurrentData = task.Project.Memory.Get(index);
             return Result.OK();
         }
 
         protected override string String()
         {
-            return StepConst.COPYFROM + StepConst.TAB + MemoryIndex;
+            return StepConst.COPYFROM + StepConst.TAB + IndexString;
         }
     }
 
@@ -82,18 +128,18 @@
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            task.Project.Memory.Set(MemoryIndex, task.CurrentData);
+            task.Project.Memory.Set(index, task.CurrentData);
             return Result.OK();
         }
 
         protected override string String()
         {
-            return StepConst.COPYTO + StepConst.TAB + MemoryIndex;
+            return StepConst.COPYTO + StepConst.TAB + IndexString;
         }
     }
 
@@ -101,15 +147,15 @@
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            var temp = task.Project.Memory.Get(MemoryIndex);
+            var temp = task.Project.Memory.Get(index);
             if (!(temp is Data<int> tempint))
             {
-                return Result.Error($"内存 {MemoryIndex} 没有数据可以进行加法运算。");
+                return Result.Error($"内存 {index} 没有数据可以进行加法运算。");
             }
 
             if (!(task.CurrentData is Data<int> curint))
@@ -123,7 +169,7 @@
 
         protected override string String()
         {
-            return StepConst.ADD + StepConst.TAB + MemoryIndex;
+            return StepConst.ADD + StepConst.TAB + IndexString;
         }
     }
 
@@ -131,15 +177,15 @@
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            var temp = task.Project.Memory.Get(MemoryIndex);
+            var temp = task.Project.Memory.Get(index);
             if (!(temp is Data<int> tempint))
             {
-                return Result.Error($"内存 {MemoryIndex} 没有数据可以进行减法运算。");
+                return Result.Error($"内存 {index} 没有数据可以进行减法运算。");
             }
 
             if (!(task.CurrentData is Data<int> curint))
@@ -153,7 +199,7 @@
 
         protected override string String()
         {
-            return StepConst.SUB + StepConst.TAB + MemoryIndex;
+            return StepConst.SUB + StepConst.TAB + IndexString;
         }
     }
 
@@ -161,26 +207,26 @@
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            var temp = task.Project.Memory.Get(MemoryIndex);
+            var temp = task.Project.Memory.Get(index);
             if (!(temp is Data<int> tempint))
             {
-                return Result.Error($"内存 {MemoryIndex} 没有数据可以进行自加运算。");
+                return Result.Error($"内存 {index} 没有数据可以进行自加运算。");
             }
 
             var data = new Data<int>(tempint.Value + 1);
-            task.Project.Memory.Set(MemoryIndex, data);
+            task.Project.Memory.Set(index, data);
             task.CurrentData = data;
             return Result.OK();
         }
 
         protected override string String()
         {
-            return StepConst.BUMPUP + StepConst.TAB + MemoryIndex;
+            return StepConst.BUMPUP + StepConst.TAB + IndexString;
         }
     }
 
@@ -188,26 +234,26 @@
     {
         public Result Do(Task task)
         {
-            if (!task.Project.Memory.HasIndex(MemoryIndex))
+            if (TryVisitMemory(task, out var index, out var error))
             {
-                return Result.Error($"试图访问不存在的内存地址 {MemoryIndex}。");
+                return error;
             }
 
-            var temp = task.Project.Memory.Get(MemoryIndex);
+            var temp = task.Project.Memory.Get(index);
             if (!(temp is Data<int> tempint))
             {
-                return Result.Error($"内存 {MemoryIndex} 没有数据可以进行自减运算。");
+                return Result.Error($"内存 {index} 没有数据可以进行自减运算。");
             }
 
             var data = new Data<int>(tempint.Value - 1);
-            task.Project.Memory.Set(MemoryIndex, data);
+            task.Project.Memory.Set(index, data);
             task.CurrentData = data;
             return Result.OK();
         }
 
         protected override string String()
         {
-            return StepConst.BUMPDN + StepConst.TAB + MemoryIndex;
+            return StepConst.BUMPDN + StepConst.TAB + IndexString;
         }
     }
 }
