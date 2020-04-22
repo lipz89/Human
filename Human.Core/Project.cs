@@ -35,7 +35,7 @@ namespace Human.Core
             this.Init(input);
             var task = new Task(this, stepGen.ToArray());
             var rst = task.Run();
-            if (rst.Status == Status.Error)
+            if(rst.Status == Status.Error)
             {
                 return TaskResult.Fail(rst.Message, task.CodeLineCount, task.StepCount, Input.List, Output.List);
             }
@@ -46,7 +46,7 @@ namespace Human.Core
             //}
 
             var count = Expect.Count;
-            if (count > 0)
+            if(count > 0)
             {
                 return TaskResult.Fail($"还有 {count} 个数据没有输出。", task.CodeLineCount, task.StepCount, Input.List, Output.List);
             }
@@ -60,9 +60,22 @@ namespace Human.Core
         private readonly List<Data> list = new List<Data>();
         private int index;
 
+        public Input()
+        {
+
+        }
+        public Input(params int[] value)
+        {
+            this.Add(value);
+        }
+        public Input(params char[] value)
+        {
+            this.Add(value);
+        }
+
         internal bool TryGet(out Data data)
         {
-            if (this.Any())
+            if(this.Any())
             {
                 data = this.list[index];
                 this.index++;
@@ -83,15 +96,21 @@ namespace Human.Core
             get { return this.list.ToList(); }
         }
 
-        public Input Add(int value)
+        public Input Add(params int[] value)
         {
-            this.list.Add(new Data<int>(value));
+            foreach(var v in value)
+            {
+                this.list.Add(new Data<int>(v));
+            }
             return this;
         }
 
-        public Input Add(char value)
+        public Input Add(params char[] value)
         {
-            this.list.Add(new Data<char>(value));
+            foreach(var v in value)
+            {
+                this.list.Add(new Data<char>(v));
+            }
             return this;
         }
     }

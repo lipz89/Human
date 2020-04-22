@@ -109,7 +109,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }
@@ -128,7 +128,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }
@@ -147,7 +147,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }
@@ -177,7 +177,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }
@@ -207,7 +207,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }
@@ -234,7 +234,7 @@ namespace Human.Core
     {
         public Result Do(Task task)
         {
-            if (TryVisitMemory(task, out var index, out var error))
+            if (!TryVisitMemory(task, out var index, out var error))
             {
                 return error;
             }

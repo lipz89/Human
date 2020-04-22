@@ -24,8 +24,12 @@ namespace TestHuman
             int sum = 0;
             foreach (var input in inputs)
             {
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"输入 ({input.List.Count})：\r\n\t" + string.Join(", ", input.List));
                 ITaskResult result = Run(steps, input);
+                Console.WriteLine($"输出 ({result.Output.Count})：\r\n\t" + string.Join(", ", result.Output));
+                Console.WriteLine($"代码行数：{result.CodeLineCount}");
+                Console.WriteLine($"执行步骤：{result.StepCount}");
                 if (result.Status != Status.Ok)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -36,15 +40,12 @@ namespace TestHuman
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("执行成功。");
                 }
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"输出 ({result.Output.Count})：\r\n\t" + string.Join(", ", result.Output));
-                Console.WriteLine($"代码行数：{result.CodeLineCount}");
-                Console.WriteLine($"执行步骤：{result.StepCount}");
                 sum += result.StepCount;
             }
 
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"平均执行步骤：{sum / inputs.Length}");
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Magenta;
             Console.WriteLine(steps);
         }
     }
@@ -75,8 +76,8 @@ namespace TestHuman
         {
             return new Input[]
             {
-                new Input().Add(1).Add(2).Add(3),
-                new Input().Add(-1).Add(0).Add(-2).Add(3).Add(0).Add(20)
+                new Input(1,2,3),
+                new Input(-1,0,-2,3,0,20)
             };
         }
     }
@@ -127,8 +128,8 @@ namespace TestHuman
         {
             return new Input[]
             {
-                new Input().Add(1).Add(2).Add(3).Add(4),
-                new Input().Add(-1).Add(0).Add('A').Add('B').Add('C').Add(20)
+                new Input(1,2,3,4),
+                new Input(-1,0).Add('A','B','C').Add(20)
             };
         }
     }
@@ -161,10 +162,10 @@ namespace TestHuman
         {
             return new Input[]
             {
-                new Input().Add(1).Add(0).Add(0).Add(4),
-                new Input().Add(0).Add(2).Add(0).Add(0),
-                new Input().Add(1).Add(0).Add(0).Add(0),
-                new Input().Add(-1).Add(0).Add('A').Add('B').Add('C').Add(20)
+                new Input(1,0,0,4),
+                new Input(0,2,0,0),
+                new Input(1,0,0,0),
+                new Input(-1,0).Add('A','B','C').Add(20)
             };
         }
     }
@@ -233,13 +234,13 @@ namespace TestHuman
         {
             return new Input[]
             {
-                new Input().Add(5).Add(-3).Add(0).Add(8),
-                new Input().Add(9).Add(-6).Add(0).Add(3),
-                new Input().Add(9).Add(-4).Add(0).Add(9),
-                new Input().Add(4).Add(-5).Add(0).Add(-8),
-                new Input().Add(5).Add(-5).Add(0).Add(9),
-                new Input().Add(6).Add(-8).Add(0).Add(6),
-                new Input().Add(4).Add(-4).Add(0).Add(7),
+                new Input(5,-3,0,8,2,3,4),
+                new Input(9,-6,0,3),
+                new Input(9,-4,0,9),
+                new Input(4,-5,0,-8),
+                new Input(5,-5,0,9),
+                new Input(6,-8,0,6),
+                new Input(4,-4,0,7),
             };
         }
     }
